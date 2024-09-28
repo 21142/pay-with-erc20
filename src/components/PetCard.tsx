@@ -82,7 +82,7 @@ const PetCard: FC<IAnimalCard> = ({
           >
             <span
               className={`peer text-sm text-primary-foreground transition-all ${
-                isDonationClicked ? "text-green-400" : ""
+                isDonationClicked ? "text-green-500" : ""
               }`}
             >
               Donate for virtual adoption
