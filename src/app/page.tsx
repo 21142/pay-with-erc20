@@ -1,13 +1,64 @@
+"use client";
+
 import PetCard from "@/components/PetCard";
+import { linkTokenAddress, recipientAddress } from "@/config/constants";
+import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useReadContract } from "wagmi";
 
 export default function Home() {
+  const [donations, setDonation] = useState(0);
+  const {
+    data: balance,
+    isLoading,
+    queryKey,
+  } = useReadContract({
+    address: linkTokenAddress,
+    functionName: "balanceOf",
+    abi: [
+      {
+        type: "function",
+        name: "balanceOf",
+        stateMutability: "view",
+        inputs: [{ name: "account", type: "address" }],
+        outputs: [{ type: "uint256" }],
+      },
+    ],
+    args: [recipientAddress],
+  });
+
+  /*
+   * use of this hook with currencies other than native is deprecated and for that useReadContract is used
+   * https://wagmi.sh/react/guides/migrate-from-v1-to-v2#deprecated-usebalance-token-parameter
+   */
+  // const { data: balanceResult } = useBalance({
+  //   address: recipientAddress,
+  //   token: linkTokenAddress,
+  // });
+
+  useEffect(() => {
+    if (balance) {
+      setDonation(Number(balance) / 1e18);
+    }
+  }, [balance]);
+
   return (
     <>
-      <h1 className="p-2 text-4xl sm:text-5xl font-extrabold leading-[1.25] text-foreground max-w-6xl mx-auto text-center pt-20">
+      <h1 className="p-2 text-4xl sm:text-5xl font-extrabold leading-[1.25] text-foreground max-w-6xl mx-auto text-center pt-8 md:pt-20">
         <span className="bg-gradient-to-r from-fuchsia-600 to-fuchsia-800 bg-clip-text text-transparent">
           Donate for virtual adoption using ERC20 tokens
         </span>
       </h1>
+      <div className="flex items-center justify-center text-2xl sm:text-3xl font-bold leading-[1.25] text-foreground max-w-6xl mx-auto text-center pt-8 md:pt-20 h-24">
+        {isLoading ? (
+          <Loader2 className="h-10 w-10 animate-spin text-fuchsia-500" />
+        ) : (
+          <p className="bg-gradient-to-r from-fuchsia-600 to-fuchsia-800 bg-clip-text text-transparent">
+            Total donations: {donations} LINK
+            {/* Total donations: {Number(balanceResult?.value) / 1e18} {balanceResult?.symbol} */}
+          </p>
+        )}
+      </div>
       <div className="grid grid-cols-1 max-w-7xl lg:grid-cols-3 gap-y-6 gap-6 items-center justify-items-center mx-auto p-8 sm:p-20 font-[family-name:var(--font-geist-sans)]">
         <PetCard
           id="1"
@@ -18,6 +69,7 @@ export default function Home() {
           age="2 years"
           breed="Husky"
           type="Dog"
+          queryKey={queryKey}
         />
         <PetCard
           id="2"
@@ -28,6 +80,7 @@ export default function Home() {
           age="1 year"
           breed="Persian"
           type="Cat"
+          queryKey={queryKey}
         />
         <PetCard
           id="3"
@@ -38,6 +91,7 @@ export default function Home() {
           age="6 months"
           breed="Cocker Spaniel"
           type="Dog"
+          queryKey={queryKey}
         />
       </div>
     </>
