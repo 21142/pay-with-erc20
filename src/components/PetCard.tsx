@@ -5,7 +5,7 @@ import {
   linkTokenAddress,
   recipientAddress,
 } from "@/config/constants";
-import { QueryKey, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, type QueryKey } from "@tanstack/react-query";
 import { HeartHandshake, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useState, type FC } from "react";
@@ -86,7 +86,7 @@ const PetCard: FC<IAnimalCard> = ({
     } catch (error) {
       console.error(error);
       setErrors("Payment impossible, failed or cancelled.");
-      setTimeout(async () => {
+      setTimeout(() => {
         setIsDonationStarted(false);
       }, 4000);
     } finally {
