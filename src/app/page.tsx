@@ -4,10 +4,13 @@ import PetCard from "@/components/PetCard";
 import { linkTokenAddress, recipientAddress } from "@/config/constants";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { erc20Abi } from "viem";
+import { sepolia } from "viem/chains";
 import { useReadContract } from "wagmi";
 
 export default function Home() {
   const [donations, setDonation] = useState(0);
+  const [network, setNetwork] = useState<number | undefined>(undefined);
   const {
     data: balance,
     isLoading,
@@ -15,15 +18,7 @@ export default function Home() {
   } = useReadContract({
     address: linkTokenAddress,
     functionName: "balanceOf",
-    abi: [
-      {
-        type: "function",
-        name: "balanceOf",
-        stateMutability: "view",
-        inputs: [{ name: "account", type: "address" }],
-        outputs: [{ type: "uint256" }],
-      },
-    ],
+    abi: erc20Abi,
     args: [recipientAddress],
   });
 
@@ -45,6 +40,11 @@ export default function Home() {
   return (
     <>
       <h1 className="p-2 text-4xl sm:text-5xl font-extrabold leading-[1.25] text-foreground max-w-6xl mx-auto text-center pt-8 md:pt-20">
+        {network !== undefined && network !== sepolia.id && (
+          <p className="text-red-600 text-xl border-b-2 border-red-600 w-fit mx-auto mb-4">
+            !!! We currently only support Sepolia Testnet !!!
+          </p>
+        )}
         <span className="bg-gradient-to-r from-fuchsia-600 to-fuchsia-800 bg-clip-text text-transparent">
           Donate for virtual adoption using ERC20 tokens
         </span>
@@ -70,6 +70,7 @@ export default function Home() {
           breed="Husky"
           type="Dog"
           queryKey={queryKey}
+          setNetwork={setNetwork}
         />
         <PetCard
           id="2"
@@ -80,6 +81,7 @@ export default function Home() {
           age="1 year"
           breed="Persian"
           type="Cat"
+          setNetwork={setNetwork}
           queryKey={queryKey}
         />
         <PetCard
@@ -91,6 +93,7 @@ export default function Home() {
           age="6 months"
           breed="Cocker Spaniel"
           type="Dog"
+          setNetwork={setNetwork}
           queryKey={queryKey}
         />
       </div>

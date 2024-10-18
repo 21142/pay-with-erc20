@@ -32,6 +32,7 @@ type IAnimalCard = {
   type?: string;
   breed?: string;
   queryKey?: QueryKey;
+  setNetwork: (network: number | undefined) => void;
 };
 
 const PetCard: FC<IAnimalCard> = ({
@@ -43,9 +44,10 @@ const PetCard: FC<IAnimalCard> = ({
   breed,
   type,
   queryKey,
+  setNetwork,
 }) => {
   const { connectAsync } = useConnect();
-  const { address } = useAccount();
+  const { address, chainId } = useAccount();
   const { writeContractAsync } = useWriteContract();
   const [isDonationStarted, setIsDonationStarted] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -105,6 +107,10 @@ const PetCard: FC<IAnimalCard> = ({
     return [age, breed, type].filter(Boolean).join(" • ");
   };
 
+  const wrongNetwork = chainId !== sepolia.id;
+
+  setNetwork(chainId);
+
   return (
     <Card
       id="card"
@@ -136,14 +142,16 @@ const PetCard: FC<IAnimalCard> = ({
             onClick={handleDonation}
             size="sm"
             className="flex gap-1 items-center justify-between w-fit"
-            disabled={isDonationStarted}
+            disabled={isDonationStarted || wrongNetwork}
           >
             <span
               className={`peer text-sm text-primary-foreground transition-all ${
                 isDonationStarted ? "text-green-500" : ""
               }`}
             >
-              {isDonationStarted
+              {wrongNetwork
+                ? "Switch network to donate"
+                : isDonationStarted
                 ? "Finalizing..."
                 : "Donate for virtual adoption"}
             </span>
